@@ -108,6 +108,9 @@ namespace CorridorGen
         double closeness_threshold_; // this will follow the radius of corridor in clutter environment
         double desired_radius_ = 1;
         bool cloud_empty_ = false;
+        bool is_sparse_;
+
+        std::vector<Eigen::Vector4d> no_flight_zone_;
 
         // global guide path
         std::vector<Eigen::Vector3d> guide_path_;
@@ -138,6 +141,7 @@ namespace CorridorGen
 
     public: // public member function
         CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_, double goal_pt_margin);
+        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_, double goal_pt_margin, bool is_sparse, std::vector<Eigen::Vector4d> no_flight_zone);                          std::vector<Eigen::Vector4d> no_flight_zone);
         ~CorridorGenerator() = default;
 
         void updatePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &new_cloud);
