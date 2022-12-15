@@ -35,7 +35,6 @@ void CorridorGenerator::updatePointCloud(const pcl::PointCloud<pcl::PointXYZ>::P
 {
     if (new_cloud->points.empty())
     {
-        std::cout << "input cloud is empty\n";
         cloud_empty_ = true;
         return;
     }
@@ -43,6 +42,8 @@ void CorridorGenerator::updatePointCloud(const pcl::PointCloud<pcl::PointXYZ>::P
     octree_.deleteTree();
     octree_.setInputCloud(new_cloud);
     octree_.addPointsFromInputCloud();
+
+    // ToDo how to check octree.leaf_count_ >= 0 ?
 }
 
 void CorridorGenerator::updateGlobalPath(const std::vector<Eigen::Vector3d> &path)
@@ -225,7 +226,6 @@ Corridor CorridorGenerator::GenerateOneSphere(const Eigen::Vector3d &pos)
     }
     else
     {
-        std::cout << "cloud empty?" << std::endl;
         return Corridor(pos, desired_radius_);
     }
 }
@@ -278,7 +278,6 @@ auto CorridorGenerator::GenerateOneSphereVerbose(const Eigen::Vector3d &pos)
     else
     {
         nearestPt << 50, 50, 50;
-        std::cout << "cloud empty?" << std::endl;
         // return Corridor(pos, 10.0);
         return std::make_pair(Corridor(pos, desired_radius_), nearestPt);
     }
@@ -658,6 +657,18 @@ Corridor CorridorGenerator::uniformBatchSample(const Eigen::Vector3d &guide_poin
             // needs to transform the candidate_pt to align the axes
             candidate_pt = rotation_matrix * candidate_pt + sample_origin;
             candidate_pt.z() = sample_origin.z();
+
+            pcl::PointXYZ candidate_pt_pcl;
+            candidate_pt_pcl.x = candidate_pt.x();
+            candidate_pt_pcl.y = candidate_pt.y();
+            candidate_pt_pcl.z = candidate_pt.z();
+
+            // check if candidate_pt is finite
+            // program will crash when we conduct nearestKSearch() on a infinite point
+            if (!pcl::isFinite(candidate_pt_pcl))
+            {
+                continue;
+            }
 
             CorridorPtr candidiate_corridor = std::make_shared<CorridorSample>();
             candidiate_corridor->geometry = GenerateOneSphere(candidate_pt);
