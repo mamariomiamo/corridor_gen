@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <tuple>
 #include <pcl/octree/octree_search.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -97,7 +98,7 @@ namespace CorridorGen
         std::vector<Corridor> flight_corridor_;
 
     private: // private member variable
-        Eigen::Vector3d initial_position_, goal_position_, local_guide_point_;
+        Eigen::Vector3d initial_position_, goal_position_, local_guide_point_, next_local_guide_point_;
         double resolution_; // point cloud resolution
         double clearance_;  // drone radius
         double one_third_;
@@ -109,6 +110,7 @@ namespace CorridorGen
         double desired_radius_ = 1;
         bool cloud_empty_ = false;
         bool is_sparse_;
+        bool bash_through_ = false;
 
         std::vector<Eigen::Vector4d> no_flight_zone_;
 
@@ -119,7 +121,6 @@ namespace CorridorGen
         // debug
         std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d>> sample_direction_;
         std::vector<Eigen::Vector3d> sample_points_;
-        int push_back_count;
 
         // store the local point cloud
         pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree_ =
@@ -149,6 +150,7 @@ namespace CorridorGen
         // Generate a sphere SFC given a position
         Corridor GenerateOneSphere(const Eigen::Vector3d &pos);
         auto GenerateOneSphereVerbose(const Eigen::Vector3d &pos);
+        std::tuple<bool, int, Eigen::Vector3d> CheckCorridorSafety(const std::vector<Corridor> corridor_list); // return [bool, last_safe_index]
 
         void updateGlobalPath(const std::vector<Eigen::Vector3d> &path);
         const std::vector<Corridor> getCorridor() const;
@@ -156,6 +158,7 @@ namespace CorridorGen
         const std::vector<std::pair<Eigen::Vector3d, Eigen::Vector3d>> getSampleDirection() const;
         const std::vector<Eigen::Vector3d> getSamplePoint() const;
         bool generateCorridorAlongPath(const std::vector<Eigen::Vector3d> &path);
+        bool CheckSingleCorridorSafety(const Corridor &corridor);
 
     private: // private member function
         Eigen::Vector3d getGuidePoint(std::vector<Eigen::Vector3d> &guide_path, const Corridor &input_corridor);
@@ -163,7 +166,7 @@ namespace CorridorGen
         bool pointNearCorridor(const Eigen::Vector3d &point, const Corridor &corridor);
         Corridor batchSample(const Eigen::Vector3d &guide_point, const Corridor &input_corridor);
         Corridor directionalSample(const Eigen::Vector3d &guide_point, const Corridor &input_corridor);
-        Corridor uniformBatchSample(const Eigen::Vector3d &guide_point, const Corridor &input_corridor, const Eigen::Vector3d &sample_origin, bool guide_point_adjusted);
+        Corridor uniformBatchSample(const Eigen::Vector3d &guide_point, const Eigen::Vector3d &guide_point_next, const Corridor &input_corridor, const Eigen::Vector3d &sample_origin, bool guide_point_adjusted, bool bash_through);
         Eigen::Vector3d getMidPointBetweenCorridors(const Corridor &previous_corridor, const Corridor &current_corridor);
         bool corridorTooClose(const Corridor &corridor_for_check);
         void informedRRT(const Eigen::Vector3d &start, const Eigen::Vector3d &goal);
