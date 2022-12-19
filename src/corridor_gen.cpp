@@ -319,7 +319,7 @@ std::tuple<bool, int, Eigen::Vector3d> CorridorGenerator::CheckCorridorSafety(co
             return std::make_tuple(false, last_safe_corridor_index, last_safe_corridor_center);
         }
     }
-
+    std::cout << "All corridor safe\n";
     return std::make_tuple(true, corridor_list.size() - 1, corridor_list.back().first);
 }
 
