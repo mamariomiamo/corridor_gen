@@ -38,10 +38,14 @@ void CorridorGenerator::updatePointCloud(const pcl::PointCloud<pcl::PointXYZ>::P
         cloud_empty_ = true;
         return;
     }
-    cloud_ = new_cloud;
-    octree_.deleteTree();
-    octree_.setInputCloud(new_cloud);
-    octree_.addPointsFromInputCloud();
+    else
+    {
+        cloud_empty_ = false;
+        cloud_ = new_cloud;
+        octree_.deleteTree();
+        octree_.setInputCloud(new_cloud);
+        octree_.addPointsFromInputCloud();
+    }
 
     // ToDo how to check octree.leaf_count_ >= 0 ?
 }
@@ -242,7 +246,6 @@ auto CorridorGenerator::GenerateOneSphereVerbose(const Eigen::Vector3d &pos)
     {
         if (octree_.nearestKSearch(searchPoint, K, pointIdxNKNSearch, pointNKNSquaredDistance) > 0)
         {
-            // std::cout << "Found neighbor" << std::endl;
             double radius;
 
             if (bash_through_)
