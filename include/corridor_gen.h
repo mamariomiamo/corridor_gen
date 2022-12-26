@@ -109,7 +109,7 @@ namespace CorridorGen
         double goal_pt_margin_;
         double closeness_threshold_; // this will follow the radius of corridor in clutter environment
         double desired_radius_ = 1; // todo: parameterize
-        bool cloud_empty_ = false;
+        bool cloud_empty_ = true;
         bool is_sparse_;
         bool bash_through_ = false;
 
