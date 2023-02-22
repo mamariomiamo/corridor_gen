@@ -12,23 +12,9 @@ CorridorGenerator::CorridorGenerator(double resolution, double clearance, int ma
     closeness_threshold_ = 0.2;
 }
 
-CorridorGenerator::CorridorGenerator(
-    double resolution, double clearance, int max_sample,
-    double ceiling, double floor, double goal_pt_margin,
-    bool is_sparse,
-    std::vector<Eigen::Vector4d> no_flight_zone)
-    : resolution_(resolution), clearance_(clearance),
-      max_sample_(max_sample), ceiling_(ceiling),
-      floor_(floor), goal_pt_margin_(goal_pt_margin),
-      is_sparse_(is_sparse),
-      no_flight_zone_(no_flight_zone)
+void CorridorGenerator::setNoFlyZone(std::vector<Eigen::Vector4d> no_flight_zone)
 {
-    octree_.deleteTree();
-    octree_.setResolution(resolution_);
-    std::random_device rd;
-    gen_ = std::mt19937_64(rd());
-    one_third_ = 1.0 / 3.0;
-    closeness_threshold_ = 0.5;
+    no_flight_zone_ = no_flight_zone;
 }
 
 void CorridorGenerator::updatePointCloud(const pcl::PointCloud<pcl::PointXYZ>::Ptr &new_cloud)
@@ -336,15 +322,7 @@ Eigen::Vector3d CorridorGenerator::getGuidePoint(std::vector<Eigen::Vector3d> &g
     }
 
     Eigen::Vector3d ret;
-    if (is_sparse_)
-    {
-        Eigen::Vector3d sample_direction =
-            (guide_path.back() - center).normalized();
-        ret =
-            sample_direction * radius + center;
-    }
-    else
-        ret = guide_path.back();
+    ret = guide_path.back();
 
     return ret;
 }
