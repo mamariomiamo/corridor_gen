@@ -69,7 +69,6 @@ namespace CorridorGen
             {
                 score = Eigen::Vector2d(ego_volume, overlap_volume).transpose() * weighting;
             }
-
         }
     };
 
@@ -96,10 +95,10 @@ namespace CorridorGen
         double clearance_;  // drone radius
         double one_third_;
         int max_sample_;
-        double ceiling_; // height limit
-        double floor_;   // floor limit
+        double ceiling_;             // height limit
+        double floor_;               // floor limit
         double closeness_threshold_; // this will follow the radius of corridor in clutter environment
-        double desired_radius_ = 1; // todo: parameterize
+        double desired_radius_ = 1;  // todo: parameterize
         bool cloud_empty_ = true;
         bool is_sparse_;
         bool bash_through_ = false;
@@ -133,7 +132,7 @@ namespace CorridorGen
         // pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree_;
 
     public: // public member function
-        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_);
+        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_, double closeness_threshold = 0.2);
         ~CorridorGenerator() = default;
 
         void setNoFlyZone(std::vector<Eigen::Vector4d> no_flight_zone);

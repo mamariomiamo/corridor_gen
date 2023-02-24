@@ -1,15 +1,14 @@
 #include <corridor_gen.h>
 
 using namespace CorridorGen;
-CorridorGenerator::CorridorGenerator(double resolution, double clearance, int max_sample, double ceiling, double floor)
-    : resolution_(resolution), clearance_(clearance), max_sample_(max_sample), ceiling_(ceiling), floor_(floor)
+CorridorGenerator::CorridorGenerator(double resolution, double clearance, int max_sample, double ceiling, double floor, double closeness_threshold)
+    : resolution_(resolution), clearance_(clearance), max_sample_(max_sample), ceiling_(ceiling), floor_(floor), closeness_threshold_(closeness_threshold)
 {
     octree_.deleteTree();
     octree_.setResolution(resolution_);
     std::random_device rd;
     gen_ = std::mt19937_64(rd());
     one_third_ = 1.0 / 3.0;
-    closeness_threshold_ = 0.2;
 }
 
 void CorridorGenerator::setNoFlyZone(std::vector<Eigen::Vector4d> no_flight_zone)
