@@ -98,7 +98,7 @@ namespace CorridorGen
         double ceiling_;             // height limit
         double floor_;               // floor limit
         double closeness_threshold_; // this will follow the radius of corridor in clutter environment
-        double desired_radius_ = 1;  // todo: parameterize
+        double desired_radius_;  // todo: parameterize
         bool cloud_empty_ = true;
         bool is_sparse_;
         bool bash_through_ = false;
@@ -132,7 +132,7 @@ namespace CorridorGen
         // pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree_;
 
     public: // public member function
-        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_, double closeness_threshold = 0.2);
+        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_, double closeness_threshold = 0.2, double desired_radius_ = 1);
         ~CorridorGenerator() = default;
 
         void setNoFlyZone(std::vector<Eigen::Vector4d> no_flight_zone);

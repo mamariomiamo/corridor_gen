@@ -1,8 +1,8 @@
 #include <corridor_gen.h>
 
 using namespace CorridorGen;
-CorridorGenerator::CorridorGenerator(double resolution, double clearance, int max_sample, double ceiling, double floor, double closeness_threshold)
-    : resolution_(resolution), clearance_(clearance), max_sample_(max_sample), ceiling_(ceiling), floor_(floor), closeness_threshold_(closeness_threshold)
+CorridorGenerator::CorridorGenerator(double resolution, double clearance, int max_sample, double ceiling, double floor, double closeness_threshold, double desired_radius)
+    : resolution_(resolution), clearance_(clearance), max_sample_(max_sample), ceiling_(ceiling), floor_(floor), closeness_threshold_(closeness_threshold), desired_radius_(desired_radius)
 {
     octree_.deleteTree();
     octree_.setResolution(resolution_);
@@ -53,7 +53,6 @@ bool CorridorGenerator::generateCorridorAlongPath(const std::vector<Eigen::Vecto
     waypoint_list_.push_back(initial_position_);
     Corridor current_corridor = GenerateOneSphere(initial_position_);
     Corridor previous_corridor = current_corridor;
-    current_corridor.second = 1;
     flight_corridor_.emplace_back(current_corridor);
     int max_iter = guide_path_.size();
     int iter_count = 0;
@@ -76,8 +75,7 @@ bool CorridorGenerator::generateCorridorAlongPath(const std::vector<Eigen::Vecto
             sample_origin = local_guide_point_;
             closeness_threshold_ = 0.5;
         }
-        // std::cout << "local_guide_point_ " << local_guide_point_.transpose() << std::endl;
-        // current_corridor = batchSample(local_guide_point_, current_corridor);
+
         if (bash_through_)
         {
             next_local_guide_point_ = guide_path_.end()[-2]; // second last point of the path list
@@ -85,8 +83,6 @@ bool CorridorGenerator::generateCorridorAlongPath(const std::vector<Eigen::Vecto
 
         current_corridor = uniformBatchSample(local_guide_point_, next_local_guide_point_, current_corridor, sample_origin, guide_point_adjusted, bash_through_);
         double distance_between_corridor_center = (current_corridor.first - previous_corridor.first).norm();
-        // std::cout << "distance_between_corridor_center " << distance_between_corridor_center << std::endl;
-        // std::cout << " current_corridor " << current_corridor.first.transpose() << std::endl;
 
         // check if the corridor did not move much i.e. clutter place
         // need to adjust guide point according?
@@ -258,7 +254,7 @@ auto CorridorGenerator::GenerateOneSphereVerbose(const Eigen::Vector3d &pos)
 
         else
         {
-            nearestPt << 50, 50, 50;
+            nearestPt << 50, 50, 50; // Arbitrarily far value and it will not be used
             // return Corridor(pos, 10.0);
             return std::make_pair(Corridor(pos, desired_radius_), nearestPt);
         }
@@ -266,8 +262,7 @@ auto CorridorGenerator::GenerateOneSphereVerbose(const Eigen::Vector3d &pos)
 
     else
     {
-        nearestPt << 50, 50, 50;
-        // return Corridor(pos, 10.0);
+        nearestPt << 50, 50, 50; // Arbitrarily far value and it will not be used
         return std::make_pair(Corridor(pos, desired_radius_), nearestPt);
     }
 }
