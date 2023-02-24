@@ -60,10 +60,7 @@ namespace CorridorGen
             // check if overlap before even calling updateScore?
             updateEgoVolume();
             updateOverlapVolume(previous_corridor);
-            // if (overlap_volume < 0.02)
-            // {
-            //     score = 0;
-            // }
+
             if (overlap_volume == 0)
             {
                 score = 0;
@@ -71,13 +68,8 @@ namespace CorridorGen
             else
             {
                 score = Eigen::Vector2d(ego_volume, overlap_volume).transpose() * weighting;
-                // std::cout << "current center is " << geometry.first.transpose() << std::endl;
-                // std::cout << "current radius is " << geometry.second << std::endl;
-                // std::cout << "overlap_volume " << overlap_volume << std::endl;
             }
 
-            // std::cout << " score " << score << " overlap " << overlap_volume * weighting(1) << " ego_volume " << ego_volume * weighting(0) << std::endl;
-            // std::cout << " overlap " << overlap_volume << " ego_volume " << ego_volume << std::endl;
         }
     };
 
@@ -106,7 +98,6 @@ namespace CorridorGen
         int max_sample_;
         double ceiling_; // height limit
         double floor_;   // floor limit
-        double goal_pt_margin_;
         double closeness_threshold_; // this will follow the radius of corridor in clutter environment
         double desired_radius_ = 1; // todo: parameterize
         bool cloud_empty_ = true;
@@ -142,7 +133,7 @@ namespace CorridorGen
         // pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree_;
 
     public: // public member function
-        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_, double goal_pt_margin);
+        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_);
         ~CorridorGenerator() = default;
 
         void setNoFlyZone(std::vector<Eigen::Vector4d> no_flight_zone);
@@ -165,7 +156,6 @@ namespace CorridorGen
     private: // private member function
         Eigen::Vector3d getGuidePoint(std::vector<Eigen::Vector3d> &guide_path, const Corridor &input_corridor);
         bool pointInCorridor(const Eigen::Vector3d &point, const Corridor &corridor);
-        bool pointNearCorridor(const Eigen::Vector3d &point, const Corridor &corridor);
         Corridor batchSample(const Eigen::Vector3d &guide_point, const Corridor &input_corridor);
         Corridor directionalSample(const Eigen::Vector3d &guide_point, const Corridor &input_corridor);
         Corridor uniformBatchSample(const Eigen::Vector3d &guide_point, const Eigen::Vector3d &guide_point_next, const Corridor &input_corridor, const Eigen::Vector3d &sample_origin, bool guide_point_adjusted, bool bash_through);

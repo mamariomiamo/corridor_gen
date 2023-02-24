@@ -1,8 +1,8 @@
 #include <corridor_gen.h>
 
 using namespace CorridorGen;
-CorridorGenerator::CorridorGenerator(double resolution, double clearance, int max_sample, double ceiling, double floor, double goal_pt_margin)
-    : resolution_(resolution), clearance_(clearance), max_sample_(max_sample), ceiling_(ceiling), floor_(floor), goal_pt_margin_(goal_pt_margin)
+CorridorGenerator::CorridorGenerator(double resolution, double clearance, int max_sample, double ceiling, double floor)
+    : resolution_(resolution), clearance_(clearance), max_sample_(max_sample), ceiling_(ceiling), floor_(floor)
 {
     octree_.deleteTree();
     octree_.setResolution(resolution_);
@@ -160,7 +160,6 @@ bool CorridorGenerator::generateCorridorAlongPath(const std::vector<Eigen::Vecto
         waypoint_list_.emplace_back(intermediate_waypoint);
 
         if (pointInCorridor(goal_position_, current_corridor))
-        // if (pointNearCorridor(goal_position_, current_corridor))
         {
             std::cout << "Corridors Generated" << std::endl;
             waypoint_list_.emplace_back(goal_position_);
@@ -331,12 +330,6 @@ bool CorridorGenerator::pointInCorridor(const Eigen::Vector3d &point, const Corr
 {
     auto [center, radius] = corridor;
     return ((point - center).norm()) < radius;
-}
-
-bool CorridorGenerator::pointNearCorridor(const Eigen::Vector3d &point, const Corridor &corridor)
-{
-    auto [center, radius] = corridor;
-    return ((point - center).norm() - goal_pt_margin_) < radius;
 }
 
 Corridor CorridorGenerator::batchSample(const Eigen::Vector3d &guide_point, const Corridor &input_corridor)
