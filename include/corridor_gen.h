@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <random>
 #include <tuple>
+#include <array>
 #include <pcl/octree/octree_search.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -102,6 +103,9 @@ namespace CorridorGen
         bool cloud_empty_ = true;
         bool is_sparse_;
         bool bash_through_ = false;
+        double drone_wheelbase_;
+        double closeness_threshold_lb_; // lower bound of closeness_threshold_
+        std::array<double, 4> weighting_;
 
         std::vector<Eigen::Vector4d> no_flight_zone_;
 
@@ -132,7 +136,7 @@ namespace CorridorGen
         // pcl::octree::OctreePointCloudSearch<pcl::PointXYZ> octree_;
 
     public: // public member function
-        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_, double closeness_threshold = 0.2, double desired_radius_ = 1);
+        CorridorGenerator(double resolution, double clearance, int max_sample_, double ceiling, double floor_, double closeness_threshold = 0.2, double desired_radius = 1, std::array<double, 4> weighting = {1,5,2,5});
         ~CorridorGenerator() = default;
 
         void setNoFlyZone(std::vector<Eigen::Vector4d> no_flight_zone);
@@ -155,8 +159,6 @@ namespace CorridorGen
     private: // private member function
         Eigen::Vector3d getGuidePoint(std::vector<Eigen::Vector3d> &guide_path, const Corridor &input_corridor);
         bool pointInCorridor(const Eigen::Vector3d &point, const Corridor &corridor);
-        Corridor batchSample(const Eigen::Vector3d &guide_point, const Corridor &input_corridor);
-        Corridor directionalSample(const Eigen::Vector3d &guide_point, const Corridor &input_corridor);
         Corridor uniformBatchSample(const Eigen::Vector3d &guide_point, const Eigen::Vector3d &guide_point_next, const Corridor &input_corridor, const Eigen::Vector3d &sample_origin, bool guide_point_adjusted, bool bash_through);
         Eigen::Vector3d getMidPointBetweenCorridors(const Corridor &previous_corridor, const Corridor &current_corridor);
         bool corridorTooClose(const Corridor &corridor_for_check);
