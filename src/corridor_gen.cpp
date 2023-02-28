@@ -1,6 +1,7 @@
 #include <corridor_gen.h>
 
 using namespace CorridorGen;
+
 CorridorGenerator::CorridorGenerator(double resolution, double clearance, int max_sample, double ceiling, double floor, double closeness_threshold, double desired_radius, std::array<double, 4> weighting)
     : resolution_(resolution)
     , clearance_(clearance)
@@ -10,6 +11,25 @@ CorridorGenerator::CorridorGenerator(double resolution, double clearance, int ma
     , closeness_threshold_(closeness_threshold)
     , desired_radius_(desired_radius)
     , weighting_(weighting)
+{
+    octree_.deleteTree();
+    octree_.setResolution(resolution_);
+    std::random_device rd;
+    gen_ = std::mt19937_64(rd());
+    one_third_ = 1.0 / 3.0;
+    drone_wheelbase_ = desired_radius_/4;
+    closeness_threshold_lb_ = drone_wheelbase_;
+    closeness_threshold_ = desired_radius_;
+}
+
+CorridorGenerator::CorridorGenerator(double resolution, double clearance, int max_sample, double ceiling, double floor, double closeness_threshold, double desired_radius)
+    : resolution_(resolution)
+    , clearance_(clearance)
+    , max_sample_(max_sample)
+    , ceiling_(ceiling)
+    , floor_(floor)
+    , closeness_threshold_(closeness_threshold)
+    , desired_radius_(desired_radius)
 {
     octree_.deleteTree();
     octree_.setResolution(resolution_);
@@ -195,7 +215,7 @@ Corridor CorridorGenerator::GenerateOneSphere(const Eigen::Vector3d &pos)
                 radius = abs(searchPoint.z);
             }
 
-            return Corridor(pos, radius);
+            return Corridor(pos, std::min(desired_radius_, radius));
         }
 
         else
@@ -495,7 +515,8 @@ Corridor CorridorGenerator::uniformBatchSample(const Eigen::Vector3d &guide_poin
 
                 // needs to transform the candidate_pt to align the axes
                 candidate_pt = rotation_matrix * candidate_pt + sample_origin;
-                candidate_pt.z() = sample_origin.z();
+                candidate_pt.z() = std::max(
+                    std::min(sample_origin.z(), ceiling_), floor_);
 
                 pcl::PointXYZ candidate_pt_pcl;
                 candidate_pt_pcl.x = candidate_pt.x();
